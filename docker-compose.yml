@@ -1,0 +1,9 @@
+services:
+  server:
+    build:
+      context: ./Server  # Docker заходит в папку Server
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+      - "7777:7777/udp"
+    restart: always
