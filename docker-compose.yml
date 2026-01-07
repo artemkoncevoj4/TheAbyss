@@ -1,9 +1,24 @@
+version: "3.8"
 services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_DB: game_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+    ports:
+      - "5432:5432"
+
   server:
     build:
-      context: ./Server  # Docker заходит в папку Server
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: Server/Dockerfile
     ports:
       - "80:80"
       - "7777:7777/udp"
+    depends_on:
+      - db
+    environment:
+      - ConnectionStrings__DefaultConnection=Host=db;Database=game_db;Username=admin;Password=password123
     restart: always

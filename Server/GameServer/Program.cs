@@ -1,12 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using GameServer.Database;
-
+using Microsoft.EntityFrameworkCore.Diagnostics; // Не забудь этот using!
 var builder = WebApplication.CreateBuilder(args);
 
 // 1. Настройка базы данных PostgreSQL
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // 2. Регистрация нашего хешера
 builder.Services.AddScoped<IPasswordHasher, BCryptHasher>();
