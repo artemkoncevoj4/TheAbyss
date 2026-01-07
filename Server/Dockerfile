@@ -1,19 +1,17 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 
-# Копируем файл проекта из подпапки
-COPY ["GameServer/GameServer.csproj", "GameServer/"]
-
-# Восстанавливаем зависимости
+# Копируем файл проекта (ищем его рекурсивно, чтобы не ошибиться с папкой)
+COPY Server/GameServer/GameServer.csproj ./GameServer/
 RUN dotnet restore "GameServer/GameServer.csproj"
 
 # Копируем всё остальное
-COPY . .
+COPY Server/ .
 
-# Собираем и публикуем (убрали --no-restore для надежности)
+# Собираем
 RUN dotnet publish "GameServer/GameServer.csproj" -c Release -o /app/out
 
-FROM mcr.microsoft.com/dotnet/aspnet:9.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/out .
 
