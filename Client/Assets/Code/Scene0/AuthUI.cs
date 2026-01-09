@@ -3,7 +3,7 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
-using TMPro; // Обязательно для TMP_InputField и TextMeshProUGUI
+using TMPro;
 
 public class AuthUI : MonoBehaviour 
 {
@@ -24,16 +24,17 @@ public class AuthUI : MonoBehaviour
 
     IEnumerator SendAuth(string endpoint)
     {
-        if (titleText != null)
-        {
-            titleText.text = "Ожидание...";
-            titleText.color = Color.white;
-        }
+        titleText.text = "Ожидание...";
+        titleText.color = Color.white;
         
-        // Создаем данные для отправки
-        var authData = new { Login = loginInput.text, Password = passInput.text };
+        // 1. Создаем объект данных строго по классу
+        AuthData authData = new AuthData();
+        authData.Login = loginInput.text;
+        authData.Password = passInput.text;
+
         string json = JsonUtility.ToJson(authData);
         
+        // 2. Настраиваем запрос
         UnityWebRequest request = new UnityWebRequest(apiUrl + endpoint, "POST");
         byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
         request.uploadHandler = new UploadHandlerRaw(bodyRaw);
@@ -42,48 +43,66 @@ public class AuthUI : MonoBehaviour
 
         yield return request.SendWebRequest();
 
+        // 3. Обработка результата
         if (request.result == UnityWebRequest.Result.Success)
         {
-            if (titleText != null) titleText.color = Color.green;
+            titleText.color = Color.green;
 
             if (endpoint == "/login") 
             {
-                // Принимаем данные от сервера
-                LoginResponse data = JsonUtility.FromJson<LoginResponse>(request.downloadHandler.text);
+                // Парсим JSON ответ от сервера
+                string responseText = request.downloadHandler.text;
+                LoginResponse data = JsonUtility.FromJson<LoginResponse>(responseText);
                 
-                // Сохраняем ID
+                // Сохраняем в глобальную сессию
                 PlayerSession.UserId = data.userId;
                 PlayerSession.Login = data.login;
 
                 if (txt_uuid != null) txt_uuid.text = "ID: " + data.userId.ToString();
-                if (titleText != null) titleText.text = "УСПЕШНЫЙ ВХОД";
                 
+                titleText.text = "УСПЕШНЫЙ ВХОД";
                 ShowModeSelection();
             } 
             else 
             {
-                if (titleText != null) titleText.text = "УСПЕШНАЯ РЕГИСТРАЦИЯ";
+                titleText.text = "УСПЕШНАЯ РЕГИСТРАЦИЯ";
             }
         }
         else
         {
-            if (titleText != null)
+            titleText.color = Color.red;
+            
+            // Если сервер прислал текстовое пояснение, выводим его
+            if (!string.IsNullOrEmpty(request.downloadHandler.text))
             {
-                titleText.color = Color.red;
                 titleText.text = request.downloadHandler.text; 
+                Debug.LogError("Детали ошибки от сервера: " + request.downloadHandler.text);
+            }
+            else
+            {
+                titleText.text = "Ошибка соединения: " + request.error;
+                Debug.LogError("Сетевая ошибка: " + request.error);
             }
         }
     }
 
     private void ShowModeSelection()
     {
-        if (loginInput != null) loginInput.gameObject.SetActive(false);
-        if (passInput != null) passInput.gameObject.SetActive(false);
+        loginInput.gameObject.SetActive(false);
+        passInput.gameObject.SetActive(false);
         
         if (localGameButton != null) localGameButton.SetActive(true);
         if (onlineGameButton != null) onlineGameButton.SetActive(true);
     }
 
+    // ВАЖНО: Эти классы должны быть ВНЕ методов
     [System.Serializable]
-    public class LoginResponse { public int userId; public string login; }
+    public class AuthData { public string Login; public string Password; }
+
+    [System.Serializable]
+    public class LoginResponse 
+    { 
+        public int userId; // Маленькая буква как в JSON сервера
+        public string login; 
+    }
 }
