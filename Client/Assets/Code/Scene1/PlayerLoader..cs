@@ -4,15 +4,18 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
-public class PlayerLoader : MonoBehaviour
-{
-    void Start()
+namespace Scene1 {
+
+    public class PlayerLoader : MonoBehaviour
     {
-        // Находим объект игрока и перемещаем его
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player != null)
+        void Start()
         {
-            player.transform.position = PlayerSession.LastPosition;
+            // Находим объект игрока и перемещаем его
+            GameObject player = GameObject.FindWithTag("Player");
+            if (player != null)
+            {
+                player.transform.position = PlayerSession.LastPosition;
+            }
         }
     }
 }
