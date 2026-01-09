@@ -39,7 +39,14 @@ public class AuthController : ControllerBase
         if (user == null || !_hasher.Verify(req.Password, user.PasswordHash))
             return Unauthorized("Неверный логин или пароль");
 
-        return Ok(new { userId = user.Id, status = "LoggedIn" });
+        // Возвращаем ID и сохраненные координаты
+        return Ok(new { 
+            userId = user.Id, 
+            login = user.Login,
+            posX = user.LastPosX, 
+            posY = user.LastPosY, 
+            posZ = user.LastPosZ 
+        });
     }
 }
 

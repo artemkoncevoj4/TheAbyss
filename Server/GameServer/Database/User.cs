@@ -17,4 +17,9 @@ public class User
 
     [Required]
     public string PasswordHash { get; set; } = default!;
+
+    // Новые поля для координат
+    public float LastPosX { get; set; } = 0f;
+    public float LastPosY { get; set; } = 1f;
+    public float LastPosZ { get; set; } = 0f;
 }
