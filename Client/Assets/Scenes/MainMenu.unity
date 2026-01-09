@@ -310,7 +310,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1725137984737919960, guid: d3eedd9b34ad5f977b20716fa0ec4e93, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnRegisterClick
+      value: OnLoginClick
       objectReference: {fileID: 0}
     - target: {fileID: 1725137984737919960, guid: d3eedd9b34ad5f977b20716fa0ec4e93, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
